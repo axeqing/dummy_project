@@ -1,5 +1,8 @@
+import 'package:dummy_project/constant.dart';
+import 'package:dummy_project/database/detailDb.dart';
+import 'package:dummy_project/payment/payment.dart';
 import 'package:flutter/material.dart';
-import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:page_transition/page_transition.dart';
 
 class Details extends StatefulWidget {
   const Details({super.key});
@@ -9,100 +12,81 @@ class Details extends StatefulWidget {
 }
 
 class _DetailsState extends State<Details> {
+  List<Map<String, dynamic>> _dataItem = [];
+  int tempid = 0;
+
+  //refresh data
+  void _refreshData() async {
+    final data = await SQLHelper.getItems();
+    bool _isloading = true;
+
+    setState(() {
+      _dataItem = data;
+      _isloading = false;
+      print(['...number of items in refresh ${_dataItem.length}']);
+      print(['...number of items ${_dataItem}']);
+      // if (_dataItem.isNotEmpty) {
+      //   cartIsempty = false;
+      // }
+    });
+  }
+
+  //initialize
+  @override
+  void initState() {
+    super.initState();
+    _refreshData();
+    print(['...number of items in initstae${_dataItem.length}']);
+    print(['...number of items ${_dataItem}']);
+  }
+
+  //add item
+  Future<void> _addItem(String title, String subtitle, int price, int quantity,
+      ) async {
+    // await SQLHelper.createItem(title, subtitle, price, quantity, food_item_key);
+    await SQLHelper.createItem(title, subtitle, price, quantity);
+    // String title , String subtitle ,int price ,int quantity);
+    _refreshData();
+    print(['...number of items ${_dataItem.length}']);
+    print(['...number of items ${_dataItem}']);
+  }
+
+  //edit item
+  Future<void> _updateItem(int id, String title, String subtitle, int price,
+      int quantity) async {
+    await SQLHelper.updateItem(
+        // id, title, subtitle, price, quantity, food_item_key);
+    id, title, subtitle, price, quantity);
+    _refreshData();
+  }
+
+  // //edit item
+  // Future<void> _updateItemFoodkey( String title, String subtitle, int price,
+  //     int quantity, int food_item_key) async {
+  //   await SQLHelper.updateItemFoodItemID(
+  //        title, subtitle, price, quantity, food_item_key);
+  //   _refreshData();
+  // }
+
+  //delete item
+  Future<void> _deleteItem(int id) async {
+    await SQLHelper.deleteItem(id);
+    _refreshData();
+  }
+
   bool expansionChange = true;
-  List<Map> menuList = [
-    {
-      'title': 'Steam',
-      'subtitle': [
-        {'name': 'fish', 'isAdded': false, 'count': 0},
-        {'name': 'bowl', 'isAdded': false, 'count': 0},
-        {'name': 'beat', 'isAdded': false, 'count': 0},
-        {'name': 'pork', 'isAdded': false, 'count': 0}
-      ]
-    },
-    {
-      'title': 'Steam Nasi',
-      'subtitle': [
-        {'name': 'fish', 'isAdded': false, 'count': 0},
-        {'name': 'bowl', 'isAdded': false, 'count': 0},
-        {'name': 'beat', 'isAdded': false, 'count': 0},
-        {'name': 'pork', 'isAdded': false, 'count': 0}
-      ]
-    },
-    {
-      'title': 'Bakmie',
-      'subtitle': [
-        {'name': 'fish', 'isAdded': false, 'count': 0},
-        {'name': 'bowl', 'isAdded': false, 'count': 0},
-        {'name': 'beat', 'isAdded': false, 'count': 0},
-        {'name': 'pork', 'isAdded': false, 'count': 0}
-      ]
-    },
-    {
-      'title': 'Ayam',
-      'subtitle': [
-        {'name': 'fish', 'isAdded': false, 'count': 0},
-        {'name': 'bowl', 'isAdded': false, 'count': 0},
-        {'name': 'beat', 'isAdded': false, 'count': 0},
-        {'name': 'pork', 'isAdded': false, 'count': 0}
-      ]
-    },
-    {
-      'title': 'Ayam',
-      'subtitle': [
-        {'name': 'fish', 'isAdded': false, 'count': 0},
-        {'name': 'bowl', 'isAdded': false, 'count': 0},
-        {'name': 'beat', 'isAdded': false, 'count': 0},
-        {'name': 'pork', 'isAdded': false, 'count': 0}
-      ]
-    },
-    {
-      'title': 'Ayam',
-      'subtitle': [
-        {'name': 'fish', 'isAdded': false, 'count': 0},
-        {'name': 'bowl', 'isAdded': false, 'count': 0},
-        {'name': 'beat', 'isAdded': false, 'count': 0},
-        {'name': 'pork', 'isAdded': false, 'count': 0}
-      ]
-    },
-    {
-      'title': 'Ayam',
-      'subtitle': [
-        {'name': 'fish', 'isAdded': false, 'count': 0},
-        {'name': 'bowl', 'isAdded': false, 'count': 0},
-        {'name': 'beat', 'isAdded': false, 'count': 0},
-        {'name': 'pork', 'isAdded': false, 'count': 0}
-      ]
-    },
-    {
-      'title': 'Ayam',
-      'subtitle': [
-        {'name': 'fish', 'isAdded': false, 'count': 0},
-        {'name': 'bowl', 'isAdded': false, 'count': 0},
-        {'name': 'beat', 'isAdded': false, 'count': 0},
-        {'name': 'pork', 'isAdded': false, 'count': 0}
-      ]
-    },
-    {
-      'title': 'Ayam',
-      'subtitle': [
-        {'name': 'fish', 'isAdded': false, 'count': 0},
-        {'name': 'bowl', 'isAdded': false, 'count': 0},
-        {'name': 'beat', 'isAdded': false, 'count': 0},
-        {'name': 'pork', 'isAdded': false, 'count': 0}
-      ]
-    },
-  ];
+
   BorderRadiusGeometry radius = const BorderRadius.only(
     topLeft: Radius.circular(24.0),
     topRight: Radius.circular(24.0),
   );
-  PanelController slidingUpController = new PanelController();
-  ExpansionTileController ExpansionController = ExpansionTileController();
+
+  // ExpansionTileController ExpansionController = ExpansionTileController();
+
   @override
   Widget build(BuildContext context) {
-    print(menuList[0]['subtitle'][0]);
-    print(menuList[1]['subtitle'][0]);
+    // print(menuList[0]['subtitle'][0]);
+    // print(menuList[1]['subtitle'][0]);
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -132,8 +116,11 @@ class _DetailsState extends State<Details> {
               )),
           actions: const [
             Center(
-              child: Text('A0000011111',
-                  style: TextStyle(color: Colors.black, fontSize: 15)),
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text('A0000011111',
+                    style: TextStyle(color: Colors.black, fontSize: 15)),
+              ),
             ),
           ],
         ),
@@ -144,116 +131,121 @@ class _DetailsState extends State<Details> {
             child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Container(
-            //    decoration: BoxDecoration(
-            //     color: Colors.blueGrey,
-            //     borderRadius: radius,
-            //   ),
-            //   child :ExpansionTile(
-            //     title: Text('asads'),
-            //     trailing: Icon(expansionChange
-            //         ? Icons.arrow_circle_down
-            //         : Icons.arrow_circle_up),
-            //     onExpansionChanged: (bool expanded) {
-            //       setState(() {
-            //         expansionChange = expanded;
-            //       });
-            //     },
-            //     children: [
-            //       Container(
-            //         height: 340,
-            //         child: ListView.builder(
-            //           itemCount: menuList.length,
-            //           itemBuilder: (context, index) {
-            //             return ListTile(
-            //               title: Text(menuList[index]['title']),
-            //             );
-            //           },
-            //         ),
-            //       ),
-            //     ],
-            //   ),
-            // ),
             Container(
-              padding: EdgeInsets.only(right: 18),
               decoration: BoxDecoration(
                 color: Colors.blueGrey,
                 borderRadius: radius,
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  IconButton(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.menu_book,
-                      color: Colors.white,
-                      size: 16,
-                    ),
-                  ),
-                  const Text(
-                    'All Menu',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      showModalBottomSheet(
-                        useRootNavigator: true,
-                        context: context,
-                        elevation: 3,
-                        // isScrollControlled: true,
-
-                        builder: (BuildContext context) {
-                          return Container(
-                            // padding: EdgeInsets.only(
-                            //   top: 15,
-                            //   left: 15,
-                            //   right: 15,
-                            //   //this for prevent soft keyboard covering the text field
-                            //   bottom: MediaQuery.of(context).viewInsets.bottom +
-                            //       150,
-                            // ),
-                            child: Container(
-                              padding: EdgeInsets.all(10),
-
-                              // child: Text('texts'),
-                              child: const Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsets.only(bottom: 20),
-                                    child: Text('More Action',
-                                        style: TextStyle(fontSize: 19)),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 10),
-                                    child: Text('data'),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 10),
-                                    child: Text('data'),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 10),
-                                    child: Text('data'),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.arrow_upward,
-                      color: Colors.white,
-                      size: 16,
+              child: ExpansionTile(
+                // title: Text('asads'),
+                title: Center(child: Text('menu')),
+                leading: Icon(Icons.menu),
+                trailing: Icon(expansionChange
+                    ? Icons.arrow_circle_down
+                    : Icons.arrow_circle_up),
+                onExpansionChanged: (bool expanded) {
+                  setState(() {
+                    expansionChange = expanded;
+                  });
+                },
+                children: [
+                  Container(
+                    height: 200,
+                    child: ListView.builder(
+                      itemCount: menuList.length,
+                      itemBuilder: (context, index) {
+                        var tempCount =
+                            menuList[index]['subtitle'].length.toString();
+                        return ListTile(
+                          title:
+                              Text(menuList[index]['title'] + ' ($tempCount)'),
+                        );
+                      },
                     ),
                   ),
                 ],
               ),
             ),
+            // Container(
+            //   padding: EdgeInsets.only(right: 18),
+            //   decoration: BoxDecoration(
+            //     color: Colors.blueGrey,
+            //     borderRadius: radius,
+            //   ),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //     children: <Widget>[
+            //       IconButton(
+            //         onPressed: () {},
+            //         icon: const Icon(
+            //           Icons.menu_book,
+            //           color: Colors.white,
+            //           size: 16,
+            //         ),
+            //       ),
+            //       const Text(
+            //         'All Menu',
+            //         style: TextStyle(color: Colors.white),
+            //       ),
+            //       IconButton(
+            //         onPressed: () {
+            //           showModalBottomSheet(
+            //             useRootNavigator: true,
+            //             context: context,
+            //             elevation: 3,
+            //             // isScrollControlled: true,
+
+            //             builder: (BuildContext context) {
+            //               return Container(
+            //                 // padding: EdgeInsets.only(
+            //                 //   top: 15,
+            //                 //   left: 15,
+            //                 //   right: 15,
+            //                 //   //this for prevent soft keyboard covering the text field
+            //                 //   bottom: MediaQuery.of(context).viewInsets.bottom +
+            //                 //       150,
+            //                 // ),
+            //                 child: Container(
+            //                   padding: EdgeInsets.all(10),
+
+            //                   // child: Text('texts'),
+            //                   child: const Column(
+            //                     mainAxisSize: MainAxisSize.min,
+            //                     crossAxisAlignment: CrossAxisAlignment.start,
+            //                     children: [
+            //                       Padding(
+            //                         padding: EdgeInsets.only(bottom: 20),
+            //                         child: Text('More Action',
+            //                             style: TextStyle(fontSize: 19)),
+            //                       ),
+            //                       Padding(
+            //                         padding: const EdgeInsets.only(bottom: 10),
+            //                         child: Text('data'),
+            //                       ),
+            //                       Padding(
+            //                         padding: const EdgeInsets.only(bottom: 10),
+            //                         child: Text('data'),
+            //                       ),
+            //                       Padding(
+            //                         padding: const EdgeInsets.only(bottom: 10),
+            //                         child: Text('data'),
+            //                       ),
+            //                     ],
+            //                   ),
+            //                 ),
+            //               );
+            //             },
+            //           );
+            //         },
+            //         icon: const Icon(
+            //           Icons.arrow_upward,
+            //           color: Colors.white,
+            //           size: 16,
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
             Container(
               padding: EdgeInsets.all(18),
               decoration: BoxDecoration(
@@ -281,7 +273,18 @@ class _DetailsState extends State<Details> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           )),
-                      onPressed: () {},
+                      onPressed: () {
+                        // Navigator.of(context).push(MaterialPageRoute(
+                        //   builder: (context) => Payment(),
+                        // ));
+                        Navigator.push(
+                            context,
+                            PageTransition(
+                                child: Payment(),
+                                childCurrent: Details(),
+                                type: PageTransitionType.bottomToTopPop,
+                                duration: Duration(seconds: 1)));
+                      },
                       child: const Text(
                         'Detail',
                         style: TextStyle(
@@ -380,6 +383,18 @@ class _DetailsState extends State<Details> {
                                                     0) {
                                                   menuList[index1]['subtitle']
                                                       [index2]['count']--;
+
+                                                  _updateItem(
+                                                    tempid,
+                                                    menuList[index1]['title'],
+                                                    menuList[index1]['subtitle']
+                                                        [index2]['name'],
+                                                    menuList[index1]['subtitle']
+                                                        [index2]['price'],
+                                                    menuList[index1]['subtitle']
+                                                        [index2]['count'],
+                                                    
+                                                  );
                                                 }
                                               });
                                             },
@@ -395,6 +410,17 @@ class _DetailsState extends State<Details> {
                                               setState(() {
                                                 menuList[index1]['subtitle']
                                                     [index2]['count']++;
+                                                _updateItem(
+                                                  tempid,
+                                                  menuList[index1]['title'],
+                                                  menuList[index1]['subtitle']
+                                                      [index2]['name'],
+                                                  menuList[index1]['subtitle']
+                                                      [index2]['price'],
+                                                  menuList[index1]['subtitle']
+                                                      [index2]['count'],
+                                                  
+                                                );
                                               });
                                             },
                                           ),
@@ -410,8 +436,21 @@ class _DetailsState extends State<Details> {
                                         ),
                                         onPressed: () {
                                           setState(() {
-                                            menuList[index1]['subtitle']
-                                                    [index2]['isAdded']=true;
+                                            menuList[index1]['subtitle'][index2]
+                                                ['isAdded'] = true;
+                                            _addItem(
+                                                menuList[index1]['title'],
+                                                menuList[index1]['subtitle']
+                                                    [index2]['name'],
+                                                menuList[index1]['subtitle']
+                                                    [index2]['price'],
+                                                menuList[index1]['subtitle']
+                                                    [index2]['count'],
+                                                );
+                                            if (_dataItem.isNotEmpty) {
+                                              tempid = _dataItem[
+                                                  _dataItem.length - 1]['id'];
+                                            }
                                           });
                                         },
                                         child: const Text('Add to Cart'),

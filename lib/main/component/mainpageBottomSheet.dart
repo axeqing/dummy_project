@@ -142,7 +142,7 @@ List<Map>moreCheckBtn =[
               left: 15,
               right: 15,
               //this for prevent soft keyboard covering the text field
-              bottom: MediaQuery.of(context).viewInsets.bottom + 150,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 15,
             ),
             child: Container(
               padding: EdgeInsets.all(10),
