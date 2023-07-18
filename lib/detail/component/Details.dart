@@ -1,6 +1,7 @@
 import 'package:dummy_project/constant.dart';
 import 'package:dummy_project/database/detailDb.dart';
-import 'package:dummy_project/payment/payment.dart';
+import 'package:dummy_project/payment/component/payment.dart';
+import 'package:dummy_project/payment/payment_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -42,9 +43,9 @@ class _DetailsState extends State<Details> {
 
   //add item
   Future<void> _addItem(String title, String subtitle, int price, int quantity,
-      ) async {
+      int food_item_key) async {
     // await SQLHelper.createItem(title, subtitle, price, quantity, food_item_key);
-    await SQLHelper.createItem(title, subtitle, price, quantity);
+    await SQLHelper.createItem(title, subtitle, price, quantity, food_item_key);
     // String title , String subtitle ,int price ,int quantity);
     _refreshData();
     print(['...number of items ${_dataItem.length}']);
@@ -53,20 +54,25 @@ class _DetailsState extends State<Details> {
 
   //edit item
   Future<void> _updateItem(int id, String title, String subtitle, int price,
-      int quantity) async {
+      int quantity, food_item_key) async {
     await SQLHelper.updateItem(
         // id, title, subtitle, price, quantity, food_item_key);
-    id, title, subtitle, price, quantity);
+        id,
+        title,
+        subtitle,
+        price,
+        quantity,
+        food_item_key);
     _refreshData();
   }
 
-  // //edit item
-  // Future<void> _updateItemFoodkey( String title, String subtitle, int price,
-  //     int quantity, int food_item_key) async {
-  //   await SQLHelper.updateItemFoodItemID(
-  //        title, subtitle, price, quantity, food_item_key);
-  //   _refreshData();
-  // }
+  //edit item
+  Future<void> _updateItemFoodkey(String title, String subtitle, int price,
+      int quantity, int food_item_key) async {
+    await SQLHelper.updateItemFoodKey(
+        title, subtitle, price, quantity, food_item_key);
+    _refreshData();
+  }
 
   //delete item
   Future<void> _deleteItem(int id) async {
@@ -82,6 +88,7 @@ class _DetailsState extends State<Details> {
   );
 
   // ExpansionTileController ExpansionController = ExpansionTileController();
+  
 
   @override
   Widget build(BuildContext context) {
@@ -280,7 +287,7 @@ class _DetailsState extends State<Details> {
                         Navigator.push(
                             context,
                             PageTransition(
-                                child: Payment(),
+                                child: paymentScreen(),
                                 childCurrent: Details(),
                                 type: PageTransitionType.bottomToTopPop,
                                 duration: Duration(seconds: 1)));
@@ -384,17 +391,20 @@ class _DetailsState extends State<Details> {
                                                   menuList[index1]['subtitle']
                                                       [index2]['count']--;
 
-                                                  _updateItem(
-                                                    tempid,
-                                                    menuList[index1]['title'],
-                                                    menuList[index1]['subtitle']
-                                                        [index2]['name'],
-                                                    menuList[index1]['subtitle']
-                                                        [index2]['price'],
-                                                    menuList[index1]['subtitle']
-                                                        [index2]['count'],
-                                                    
-                                                  );
+                                                  _updateItemFoodkey(
+                                                      menuList[index1]['title'],
+                                                      menuList[index1]
+                                                              ['subtitle']
+                                                          [index2]['name'],
+                                                      menuList[index1]
+                                                              ['subtitle']
+                                                          [index2]['price'],
+                                                      menuList[index1]
+                                                              ['subtitle']
+                                                          [index2]['count'],
+                                                      menuList[index1]
+                                                              ['subtitle']
+                                                          [index2]['itemId']);
                                                 }
                                               });
                                             },
@@ -410,17 +420,16 @@ class _DetailsState extends State<Details> {
                                               setState(() {
                                                 menuList[index1]['subtitle']
                                                     [index2]['count']++;
-                                                _updateItem(
-                                                  tempid,
-                                                  menuList[index1]['title'],
-                                                  menuList[index1]['subtitle']
-                                                      [index2]['name'],
-                                                  menuList[index1]['subtitle']
-                                                      [index2]['price'],
-                                                  menuList[index1]['subtitle']
-                                                      [index2]['count'],
-                                                  
-                                                );
+                                                _updateItemFoodkey(
+                                                    menuList[index1]['title'],
+                                                    menuList[index1]['subtitle']
+                                                        [index2]['name'],
+                                                    menuList[index1]['subtitle']
+                                                        [index2]['price'],
+                                                    menuList[index1]['subtitle']
+                                                        [index2]['count'],
+                                                    menuList[index1]['subtitle']
+                                                        [index2]['itemId']);
                                               });
                                             },
                                           ),
@@ -446,7 +455,8 @@ class _DetailsState extends State<Details> {
                                                     [index2]['price'],
                                                 menuList[index1]['subtitle']
                                                     [index2]['count'],
-                                                );
+                                                menuList[index1]['subtitle']
+                                                    [index2]['itemId']);
                                             if (_dataItem.isNotEmpty) {
                                               tempid = _dataItem[
                                                   _dataItem.length - 1]['id'];

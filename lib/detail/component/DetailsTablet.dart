@@ -1,9 +1,10 @@
-// import 'package:dummy_project/detail/component/editqtyDialog.dart';
 import 'package:dummy_project/detail/component/showlist.dart';
 import 'package:dummy_project/main/component/functionlist.dart';
+import 'package:dummy_project/payment/payment_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:dummy_project/constant.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:dummy_project/payment/component/paymentTablet.dart';
 
 import '../../database/detailDb.dart';
 
@@ -45,9 +46,9 @@ class _DetailsTabletState extends State<DetailsTablet> {
 
   //add item
   Future<void> _addItem(String title, String subtitle, int price, int quantity,
-     ) async {
+      int food_item_key) async {
     // await SQLHelper.createItem(title, subtitle, price, quantity, food_Item_key);
-    await SQLHelper.createItem(title, subtitle, price, quantity);
+    await SQLHelper.createItem(title, subtitle, price, quantity, food_item_key);
     // String title , String subtitle ,int price ,int quantity);
     _refreshData();
     print(['...number of items ${_dataItem.length}']);
@@ -61,11 +62,16 @@ class _DetailsTabletState extends State<DetailsTablet> {
     String subtitle,
     int price,
     int quantity,
-    
+    int food_item_key,
   ) async {
     await SQLHelper.updateItem(
         // id, title, subtitle, price, quantity, food_Item_key);
-        id, title, subtitle, price, quantity);
+        id,
+        title,
+        subtitle,
+        price,
+        quantity,
+        food_item_key);
     _refreshData();
   }
 
@@ -86,11 +92,7 @@ class _DetailsTabletState extends State<DetailsTablet> {
 
   //edit qty dialog
   void showEditQtyDialog(BuildContext context, String title, String subtitle,
-      int price, bool isUpdate, int? id, int? index, int food_Item_key) {
-    // String quantity;
-    // String title ;
-    // String subtitle ;
-    // String price;
+      int price, bool isUpdate, int? id, int? index, int food_item_key) {
     int quantity = 0;
     if (index != null) {
       quantity = _dataItem[index]['quantity'];
@@ -394,7 +396,7 @@ class _DetailsTabletState extends State<DetailsTablet> {
                               if (id != null) {
                                 if (quantity != 0) {
                                   await _updateItem(id, title, subtitle, price,
-                                      quantity);
+                                      quantity, food_item_key);
                                   Navigator.pop(context);
                                   ScaffoldMessenger.of(context)
                                       .showSnackBar(SnackBar(
@@ -409,7 +411,7 @@ class _DetailsTabletState extends State<DetailsTablet> {
                               } else {
                                 if (quantity != 0) {
                                   await _addItem(title, subtitle, price,
-                                      quantity);
+                                      quantity, food_item_key);
                                   Navigator.pop(context);
                                   ScaffoldMessenger.of(context)
                                       .showSnackBar(SnackBar(
@@ -556,8 +558,18 @@ class _DetailsTabletState extends State<DetailsTablet> {
                             padding: EdgeInsets.only(top: 15, bottom: 15),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10))),
-                        onPressed: () {},
-                        child: Text('Finalise'),
+                        onPressed: () {
+                          // Navigator.of(context).push(MaterialPageRoute(
+                          //   builder: (context) => const PaymentTablet(),
+                          // ));
+                          Navigator.push(
+                              context,
+                              PageTransition(
+                                  child: paymentScreen(),
+                                  type: PageTransitionType.rightToLeft,
+                                  duration: Duration(milliseconds: 400)));
+                        },
+                        child: Text('Finalise cash'),
                       ),
                     ),
                   ),
@@ -610,67 +622,129 @@ class _DetailsTabletState extends State<DetailsTablet> {
                               // shrinkWrap: true,
                               itemCount: _dataItem.length,
                               itemBuilder: (context, index) {
-                                return ListTile(
-                                  // title: Text(paymentList[index]['title']),
-                                  title: Text(
-                                      '(${_dataItem[index]['quantity']}) ' +
-                                          _dataItem[index]['subtitle']),
-                                  subtitle: Text('IDR ' +
-                                      _dataItem[index]['price'].toString()),
-                                  leading: IconButton(
-                                    onPressed: () {
-                                      _deleteItem(_dataItem[index]['id']);
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(const SnackBar(
-                                        content: Text(
-                                            'Successfully deleted a item!'),
-                                      ));
-                                      if (_dataItem.isEmpty) {
-                                        setState(() {
-                                          cartIsempty = true;
-                                        });
-                                      }
-                                    },
-                                    icon: Icon(Icons.delete),
-                                    color: Colors.red[300],
-                                  ),
-                                  trailing: IconButton(
-                                    onPressed: () {
-                                      //for update
-                                      showEditQtyDialog(
-                                        context,
-                                        _dataItem[index]['title'],
-                                        _dataItem[index]['subtitle'],
-                                        _dataItem[index]['price'],
-                                        isUpdate = true,
-                                        _dataItem[index]['id'],
-                                        index,
-                                        _dataItem[index]['food_item_key'],
-                                      );
-                                    },
-                                    icon: Icon(Icons.edit),
-                                    color: Colors.lightBlue[300],
-                                  ),
-                                  // title: Row(
-                                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  //   children: [
-                                  //     IconButton(
-                                  //       onPressed: () {},
-                                  //       icon: Icon(Icons.delete),
-                                  //       color: Colors.red[300],
-                                  //     ),
-                                  //     Text('(3)'),
-                                  //     Text(paymentList[index]['title']),
-                                  //     Text('IDR ' +
-                                  //         paymentList[index]['price'].toString()),
-                                  //     IconButton(
-                                  //       onPressed: () {},
-                                  //       icon: Icon(Icons.edit),
-                                  //       color: Colors.lightBlue[300],
-                                  //     ),
+                                // return ListTile(
+                                //   // title: Text(paymentList[index]['title']),
+                                //   title: Text(
+                                //       '(${_dataItem[index]['quantity']}) ' +
+                                //           _dataItem[index]['subtitle']),
+                                //   subtitle: Text('IDR ' +
+                                //       _dataItem[index]['price'].toString()),
+                                //   leading: IconButton(
+                                //     onPressed: () {
+                                //       _deleteItem(_dataItem[index]['id']);
+                                //       ScaffoldMessenger.of(context)
+                                //           .showSnackBar(const SnackBar(
+                                //         content: Text(
+                                //             'Successfully deleted a item!'),
+                                //       ));
+                                //       if (_dataItem.isEmpty) {
+                                //         setState(() {
+                                //           cartIsempty = true;
+                                //         });
+                                //       }
+                                //     },
+                                //     icon: Icon(Icons.delete),
+                                //     color: Colors.red[300],
+                                //   ),
+                                //   trailing: IconButton(
+                                //     onPressed: () {
+                                //       //for update
+                                //       showEditQtyDialog(
+                                //           context,
+                                //           _dataItem[index]['title'],
+                                //           _dataItem[index]['subtitle'],
+                                //           _dataItem[index]['price'],
+                                //           isUpdate = true,
+                                //           _dataItem[index]['id'],
+                                //           index,
+                                //           _dataItem[index]['food_item_key']);
+                                //     },
+                                //     icon: Icon(Icons.edit),
+                                //     color: Colors.lightBlue[300],
+                                //   ),
+                                //   // title: Row(
+                                //   //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                //   //   children: [
+                                //   //     IconButton(
+                                //   //       onPressed: () {},
+                                //   //       icon: Icon(Icons.delete),
+                                //   //       color: Colors.red[300],
+                                //   //     ),
+                                //   //     Text('(3)'),
+                                //   //     Text(paymentList[index]['title']),
+                                //   //     Text('IDR ' +
+                                //   //         paymentList[index]['price'].toString()),
+                                //   //     IconButton(
+                                //   //       onPressed: () {},
+                                //   //       icon: Icon(Icons.edit),
+                                //   //       color: Colors.lightBlue[300],
+                                //   //     ),
 
-                                  //   ],
-                                  // ),
+                                //   //   ],
+                                //   // ),
+                                // );
+                                return ListTile(
+                                  title: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        child: Row(
+                                          children: [
+                                            IconButton(
+                                              onPressed: () {
+                                                _deleteItem(
+                                                    _dataItem[index]['id']);
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                        const SnackBar(
+                                                  content: Text(
+                                                      'Successfully deleted a item!'),
+                                                ));
+                                                if (_dataItem.isEmpty) {
+                                                  setState(() {
+                                                    cartIsempty = true;
+                                                  });
+                                                }
+                                              },
+                                              icon: Icon(Icons.delete),
+                                              color: Colors.red[300],
+                                            ),
+                                            Text(
+                                                '(${_dataItem[index]['quantity']}) ' +
+                                                    _dataItem[index]
+                                                        ['subtitle']),
+                                          ],
+                                        ),
+                                      ),
+                                      Container(
+                                        child: Row(
+                                          children: [
+                                            Text('IDR ' +
+                                                _dataItem[index]['price']
+                                                    .toString()),
+                                            IconButton(
+                                              onPressed: () {
+                                                //for update
+                                                showEditQtyDialog(
+                                                    context,
+                                                    _dataItem[index]['title'],
+                                                    _dataItem[index]
+                                                        ['subtitle'],
+                                                    _dataItem[index]['price'],
+                                                    isUpdate = true,
+                                                    _dataItem[index]['id'],
+                                                    index,
+                                                    _dataItem[index]
+                                                        ['food_item_key']);
+                                              },
+                                              icon: Icon(Icons.edit),
+                                              color: Colors.lightBlue[300],
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  ),
                                 );
                               },
                               separatorBuilder:
@@ -917,7 +991,9 @@ class _DetailsTabletState extends State<DetailsTablet> {
                                                       // menuList[index1]['id']
                                                       null,
                                                       null,
-                                                      _dataItem[index]['id']);
+                                                      menuList[index1]
+                                                              ['subtitle']
+                                                          [index]['itemId']);
                                                 },
                                                 child: Container(
                                                   width: double.infinity,

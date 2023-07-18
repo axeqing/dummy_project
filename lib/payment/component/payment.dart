@@ -1,6 +1,7 @@
 import 'package:dummy_project/database/detailDb.dart';
+import 'package:dummy_project/transaction/transaction_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:dummy_project/payment/transaction.dart';
+import 'package:dummy_project/transaction/component/transaction.dart';
 
 class Payment extends StatefulWidget {
   const Payment({super.key});
@@ -11,6 +12,9 @@ class Payment extends StatefulWidget {
 
 class _PaymentState extends State<Payment> {
   List<Map<String, dynamic>> _dataItem = [];
+  bool cartIsempty = true;
+  bool isUpdate = false;
+
   //refresh data
   void _refreshData() async {
     final data = await SQLHelper.getItems();
@@ -21,9 +25,9 @@ class _PaymentState extends State<Payment> {
       _isloading = false;
       print(['...number of items in refresh ${_dataItem.length}']);
       print(['...number of items ${_dataItem}']);
-      // if (_dataItem.isNotEmpty) {
-      //   cartIsempty = false;
-      // }
+      if (_dataItem.isNotEmpty) {
+        cartIsempty = false;
+      }
     });
   }
 
@@ -34,6 +38,7 @@ class _PaymentState extends State<Payment> {
     _refreshData();
     print(['...number of items in initstae${_dataItem.length}']);
     print(['...number of items ${_dataItem}']);
+    
   }
 
   // //add item
@@ -47,10 +52,11 @@ class _PaymentState extends State<Payment> {
   // }
 
   //edit item
-  Future<void> _updateItem(
-      int id, String title, String subtitle, int price, int quantity) async {
+  Future<void> _updateItem(int id, String title, String subtitle, int price,
+      int quantity, int food_item_key) async {
     // await SQLHelper.updateItem(id, title, subtitle, price, quantity,food_item_key);
-       await SQLHelper.updateItem(id, title, subtitle, price, quantity);
+    await SQLHelper.updateItem(
+        id, title, subtitle, price, quantity, food_item_key);
     _refreshData();
   }
 
@@ -74,6 +80,351 @@ class _PaymentState extends State<Payment> {
     {'title': 'GOBIZ', 'isSelected': false},
     {'title': 'GOPAY', 'isSelected': false},
   ];
+
+  //calculate total amount
+  String returnTotal(List _dataItem) {
+    int totalAmount = 0;
+    for (int i = 0; i < _dataItem.length; i++) {
+      totalAmount =
+          (_dataItem[i]['price'] * _dataItem[i]['quantity']) + totalAmount;
+    }
+    return totalAmount.toString();
+  }
+
+  //edit qty dialog
+  void showEditQtyDialog(BuildContext context, String title, String subtitle,
+      int price, bool isUpdate, int? id, int? index, int food_item_key) {
+    int quantity = 0;
+    if (index != null) {
+      quantity = _dataItem[index]['quantity'];
+    }
+
+    showDialog(
+      context: context,
+      builder: ((context) {
+        return StatefulBuilder(builder: (context, StateSetter setState) {
+          return Dialog(
+            child: Container(
+              width: 200,
+              // height: 410,
+              decoration:
+                  BoxDecoration(borderRadius: BorderRadius.circular(501)),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(12.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Edit QTY',
+                        style: TextStyle(fontSize: 20),
+                      ),
+                    ),
+                  ),
+                  Card(
+                    // shape: RoundedRectangleBorder(
+                    //   borderRadius: BorderRadius.circular(5.0),
+                    // ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: MediaQuery.of(context).size.width * 0.4,
+                            maxHeight: MediaQuery.of(context).size.width * 0.28,
+                          ),
+                          // child: Image.asset('',
+                          //     fit: BoxFit.fill),
+                          child: Image(
+                            image: AssetImage('images/download.png'),
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [Text(title), Text(subtitle)],
+                        ),
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: Container(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                IconButton(
+                                  icon: Icon(Icons.remove),
+                                  onPressed: () {
+                                    setState(() {
+                                      // if (menuList[0]['subtitle'][0]['count'] >
+                                      //     0) {
+                                      //   menuList[0]['subtitle'][0]['count']--;
+                                      // }
+                                      if (quantity > 0) {
+                                        quantity--;
+                                      }
+                                    });
+                                  },
+                                  color: Colors.red,
+                                ),
+                                // Text(menuList[0]['subtitle'][0]['count']
+                                //     .toString()),
+                                Text(quantity.toString()),
+                                // if (index != null) ...[
+                                //   Text(_dataItem[index]['quantity'].toString()),
+                                // ] else ...[
+                                //   Text(quantity.toString())
+                                // ],
+
+                                IconButton(
+                                  icon: Icon(Icons.add),
+                                  color: Colors.green,
+                                  onPressed: () {
+                                    setState(() {
+                                      // menuList[0]['subtitle'][0]['count']++;
+                                      quantity++;
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Container(
+                      decoration: BoxDecoration(color: Colors.grey[400]),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Expanded(
+                                    child: Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        primary: Colors.white,
+                                      ),
+                                      onPressed: () {},
+                                      child: const Text(
+                                        '1',
+                                        style: TextStyle(color: Colors.black),
+                                      )),
+                                )),
+                                Expanded(
+                                    child: Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        primary: Colors.white,
+                                      ),
+                                      onPressed: () {},
+                                      child: const Text(
+                                        '2',
+                                        style: TextStyle(color: Colors.black),
+                                      )),
+                                )),
+                                Expanded(
+                                    child: Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        primary: Colors.white,
+                                      ),
+                                      onPressed: () {},
+                                      child: const Text(
+                                        '3',
+                                        style: TextStyle(color: Colors.black),
+                                      )),
+                                )),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Expanded(
+                                    child: Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        primary: Colors.white,
+                                      ),
+                                      onPressed: () {},
+                                      child: const Text(
+                                        '4',
+                                        style: TextStyle(color: Colors.black),
+                                      )),
+                                )),
+                                Expanded(
+                                    child: Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        primary: Colors.white,
+                                      ),
+                                      onPressed: () {},
+                                      child: const Text(
+                                        '5',
+                                        style: TextStyle(color: Colors.black),
+                                      )),
+                                )),
+                                Expanded(
+                                    child: Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        primary: Colors.white,
+                                      ),
+                                      onPressed: () {},
+                                      child: const Text(
+                                        '6',
+                                        style: TextStyle(color: Colors.black),
+                                      )),
+                                )),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Expanded(
+                                    child: Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        primary: Colors.white,
+                                      ),
+                                      onPressed: () {},
+                                      child: const Text(
+                                        '7',
+                                        style: TextStyle(color: Colors.black),
+                                      )),
+                                )),
+                                Expanded(
+                                    child: Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        primary: Colors.white,
+                                      ),
+                                      onPressed: () {},
+                                      child: const Text(
+                                        '8',
+                                        style: TextStyle(color: Colors.black),
+                                      )),
+                                )),
+                                Expanded(
+                                    child: Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        primary: Colors.white,
+                                      ),
+                                      onPressed: () {},
+                                      child: const Text(
+                                        '9',
+                                        style: TextStyle(color: Colors.black),
+                                      )),
+                                )),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Expanded(
+                                    child: Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        primary: Colors.grey[500],
+                                      ),
+                                      onPressed: () {},
+                                      child:
+                                          const Icon(Icons.remove_moderator)),
+                                )),
+                                Expanded(
+                                    child: Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        primary: Colors.white,
+                                      ),
+                                      onPressed: () {},
+                                      child: const Text(
+                                        '0',
+                                        style: TextStyle(color: Colors.black),
+                                      )),
+                                )),
+                                Expanded(
+                                    child: Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        primary: Colors.grey[500],
+                                      ),
+                                      onPressed: () {},
+                                      child: const Text(
+                                        'Go',
+                                        style: TextStyle(color: Colors.blue),
+                                      )),
+                                )),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                primary: Colors.orange[500],
+                                padding: EdgeInsets.only(top: 15, bottom: 15),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10))),
+                            onPressed: () async {
+                              cartIsempty = false;
+                              if (id != null) {
+                                if (quantity != 0) {
+                                  await _updateItem(id, title, subtitle, price,
+                                      quantity, food_item_key);
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(
+                                    content: Text("Successfully changes"),
+                                  ));
+                                } else {
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(
+                                    content: Text("Quantity cannot be zero!"),
+                                  ));
+                                }
+                              }
+                            },
+                            child: Text('Save Change'),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+      }),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -420,7 +771,7 @@ class _PaymentState extends State<Payment> {
                               borderRadius: BorderRadius.circular(10))),
                       onPressed: () {
                         Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => transaction(),
+                          builder: (context) => transactionScreen(),
                         ));
                       },
                       child: const Column(
@@ -517,7 +868,8 @@ class _PaymentState extends State<Payment> {
                 itemCount: _dataItem.length,
                 itemBuilder: (context, index) {
                   return ListTile(
-                    title: Text('(${_dataItem[index]['quantity']}) '+_dataItem[index]['subtitle']),
+                    title: Text('(${_dataItem[index]['quantity']}) ' +
+                        _dataItem[index]['subtitle']),
                     subtitle:
                         Text('IDR ' + _dataItem[index]['price'].toString()),
                     leading: IconButton(
@@ -528,7 +880,17 @@ class _PaymentState extends State<Payment> {
                       color: Colors.red[300],
                     ),
                     trailing: IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        showEditQtyDialog(
+                            context,
+                            _dataItem[index]['title'],
+                            _dataItem[index]['subtitle'],
+                            _dataItem[index]['price'],
+                            isUpdate = true,
+                            _dataItem[index]['id'],
+                            index,
+                            _dataItem[index]['food_item_key']);
+                      },
                       icon: Icon(Icons.edit),
                       color: Colors.lightBlue[300],
                     ),
@@ -553,9 +915,9 @@ class _PaymentState extends State<Payment> {
               ),
               padding: EdgeInsets.all(10),
               margin: EdgeInsets.all(16),
-              child: const Column(
+              child:  Column(
                 children: [
-                  Align(
+                  const Align(
                     alignment: Alignment.centerLeft,
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
@@ -565,14 +927,15 @@ class _PaymentState extends State<Payment> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Padding(
+                      const Padding(
                         padding: EdgeInsets.all(8.0),
                         child: Text('Sub Total'),
                       ),
-                      Text('IDR 60000'),
+                      // Text('IDR 60000'),
+                      Text(returnTotal(_dataItem)),
                     ],
                   ),
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Padding(
@@ -585,11 +948,12 @@ class _PaymentState extends State<Payment> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Padding(
+                      const Padding(
                         padding: EdgeInsets.all(8.0),
                         child: Text('Grand Total'),
                       ),
-                      Text('IDR 60000'),
+                      // Text('IDR 60000'),
+                      Text(returnTotal(_dataItem)),
                     ],
                   )
                 ],

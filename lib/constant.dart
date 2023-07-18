@@ -147,3 +147,21 @@ List<Map> tenderList = [
 ];
 
 final submenuCount =['All','Steam  (13)' ,'Boat  (12)' ,'Goat  (11)' ,'ABC  (13)' ,];
+
+List<Map> transtionList = [
+  {'receipt': 'A22000001669', 'posid': 'POS001','table':'SF1','firstOtp':'Raptor','Total':0,'OpenDate':'05/09/2023','time':'15:20:21','mode':'REG','sales':1655,'convers':1},
+  {'receipt': 'A22000001619', 'posid': 'POS002','table':'SF1','firstOtp':'Raptor','Total':0,'OpenDate':'05/09/2023','time':'15:20:21','mode':'REG','sales':1654,'convers':1},
+  {'receipt': 'A22000001659', 'posid': 'POS003','table':'SF1','firstOtp':'Raptor','Total':0,'OpenDate':'05/09/2023','time':'15:20:21','mode':'REG','sales':1656,'convers':1},
+  {'receipt': 'A22000001679', 'posid': 'POS004','table':'SF1','firstOtp':'Raptor','Total':0,'OpenDate':'05/09/2023','time':'15:20:21','mode':'REG','sales':1658,'convers':1},
+  {'receipt': 'A22000001679', 'posid': 'POS004','table':'SF1','firstOtp':'Raptor','Total':0,'OpenDate':'05/09/2023','time':'15:20:21','mode':'REG','sales':1658,'convers':1},
+  {'receipt': 'A22000001669', 'posid': 'POS001','table':'SF1','firstOtp':'Raptor','Total':0,'OpenDate':'05/09/2023','time':'15:20:21','mode':'REG','sales':1655,'convers':1},
+  {'receipt': 'A22000001619', 'posid': 'POS002','table':'SF1','firstOtp':'Raptor','Total':0,'OpenDate':'05/09/2023','time':'15:20:21','mode':'REG','sales':1654,'convers':1},
+  {'receipt': 'A22000001659', 'posid': 'POS003','table':'SF1','firstOtp':'Raptor','Total':0,'OpenDate':'05/09/2023','time':'15:20:21','mode':'REG','sales':1656,'convers':1},
+  {'receipt': 'A22000001679', 'posid': 'POS004','table':'SF1','firstOtp':'Raptor','Total':0,'OpenDate':'05/09/2023','time':'15:20:21','mode':'REG','sales':1658,'convers':1},
+  {'receipt': 'A22000001679', 'posid': 'POS004','table':'SF1','firstOtp':'Raptor','Total':0,'OpenDate':'05/09/2023','time':'15:20:21','mode':'REG','sales':1658,'convers':1},
+  {'receipt': 'A22000001669', 'posid': 'POS001','table':'SF1','firstOtp':'Raptor','Total':0,'OpenDate':'05/09/2023','time':'15:20:21','mode':'REG','sales':1655,'convers':1},
+  {'receipt': 'A22000001619', 'posid': 'POS002','table':'SF1','firstOtp':'Raptor','Total':0,'OpenDate':'05/09/2023','time':'15:20:21','mode':'REG','sales':1654,'convers':1},
+  {'receipt': 'A22000001659', 'posid': 'POS003','table':'SF1','firstOtp':'Raptor','Total':0,'OpenDate':'05/09/2023','time':'15:20:21','mode':'REG','sales':1656,'convers':1},
+  {'receipt': 'A22000001679', 'posid': 'POS004','table':'SF1','firstOtp':'Raptor','Total':0,'OpenDate':'05/09/2023','time':'15:20:21','mode':'REG','sales':1658,'convers':1},
+  {'receipt': 'A22000001679', 'posid': 'POS004','table':'SF1','firstOtp':'Raptor','Total':0,'OpenDate':'05/09/2023','time':'15:20:21','mode':'REG','sales':1658,'convers':1},
+];

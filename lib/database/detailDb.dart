@@ -9,29 +9,40 @@ class SQLHelper {
       title TEXT,
       subtitle TEXT,
       price INTEGER,
-      quantity INTEGER
+      quantity INTEGER,
+      food_item_key INTEGER
     )
     """);
   }
 
   //call method to create
   static Future<sql.Database> db() async {
-    return sql.openDatabase("cartItems.db", version: 1,
-        onCreate: (sql.Database database, int version) async {
-      print('..creating a table...');
-      await createTables(database);
-    });
+    return sql.openDatabase(
+      "cartItems.db", version: 1,
+      onCreate: (sql.Database database, int version) async {
+        print('..creating a table...');
+        await createTables(database);
+      },
+      //this is second update version2 a column in the cartItems table
+      // onUpgrade: (db, oldVersion, newVersion) async {
+      //   if (newVersion > oldVersion) {
+      //     await db.execute("ALTER TABLE cartItems ADD "
+      //         "COLUMN food_item_key INTEGER;");
+      //   }
+      // },
+    );
   }
 
   //add data
-  static Future<int> createItem(
-      String title, String subtitle, int price, int quantity) async {
+  static Future<int> createItem(String title, String subtitle, int price,
+      int quantity, int food_item_key) async {
     final db = await SQLHelper.db();
     final data = {
       "title": title,
       "subtitle": subtitle,
       'price': price,
-      'quantity': quantity
+      'quantity': quantity,
+      'food_item_key': food_item_key,
     };
     //insert the data , conflictalgorithm prevent duplicate
     final id = await db.insert("cartItems", data,
@@ -43,7 +54,9 @@ class SQLHelper {
   //get all item
   static Future<List<Map<String, dynamic>>> getItems() async {
     final db = await SQLHelper.db();
+    print("Database path: ${await sql.getDatabasesPath()}");
     return db.query("cartItems", orderBy: "id");
+    
   }
 
   //get specific item
@@ -53,19 +66,40 @@ class SQLHelper {
   }
 
   //update data
-  static Future<int> updateItem(
-      int id, String title, String subtitle, int price, int quantity) async {
+  static Future<int> updateItem(int id, String title, String subtitle,
+      int price, int quantity, int food_item_key) async {
     final db = await SQLHelper.db();
     final data = {
       "title": title,
       "subtitle": subtitle,
       'price': price,
-      'quantity': quantity
+      'quantity': quantity,
+      'food_item_key': food_item_key,
       // "createdAt": DateTime.now().toString()
     }; //map data type
 
     final result =
         await db.update("cartItems", data, where: "id = ?", whereArgs: [id]);
+    print('sucesss update');
+
+    return result;
+  }
+
+  //update data using food key
+  static Future<int> updateItemFoodKey(String title, String subtitle, int price,
+      int quantity, int food_item_key) async {
+    final db = await SQLHelper.db();
+    final data = {
+      "title": title,
+      "subtitle": subtitle,
+      'price': price,
+      'quantity': quantity,
+      'food_item_key': food_item_key,
+      // "createdAt": DateTime.now().toString()
+    }; //map data type
+
+    final result = await db.update("cartItems", data,
+        where: "food_item_key = ?", whereArgs: [food_item_key]);
     print('sucesss update');
 
     return result;
